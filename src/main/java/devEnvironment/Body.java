@@ -1,20 +1,18 @@
-package DevEnvironment;
+package devEnvironment;
 
-import GameEngine.Entity;
-import GameEngine.KeyBinding;
-import GameEngine.UserInputHandler;
-import GameManager.GameManager;
+import gameEngine.Entity;
+import gameEngine.KeyBinding;
+import gameEngine.UserInputHandler;
 import Global.Settings;
-import PhysicsEngine.Material;
-import PhysicsEngine.PhysicsObject;
-import PhysicsEngine.PhysicsWorld;
-import PhysicsEngine.math.Point;
+import physicsEngine.Material;
+import physicsEngine.PhysicsObject;
+import physicsEngine.PhysicsWorld;
+import physicsEngine.math.Point;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
-import javafx.scene.transform.Rotate;
 
-public class NewBody extends Entity
+public class Body extends Entity
 {
     private final static int RADIUS = 20;
     private final static int MAX_AXIS_VELOCITY = 20;
@@ -28,7 +26,7 @@ public class NewBody extends Entity
     protected KeyBinding up, down, left, right, boost;
 
     // Rectangle constructor
-    public NewBody(float x, float y, float width, float height, Material material, PhysicsWorld world)
+    public Body(float x, float y, float width, float height, Material material, PhysicsWorld world)
     {
         collisionBox = world.addBox(x, y, width, height, material);
         shape = new Rectangle(-width/2, -height/2, width, height);
@@ -43,7 +41,7 @@ public class NewBody extends Entity
     }
 
     // Circle constructor
-    public NewBody(float x, float y, float radius, Material material, PhysicsWorld world)
+    public Body(float x, float y, float radius, Material material, PhysicsWorld world)
     {
         collisionBox = world.addCircle(x, y, radius, material);
         shape = new Circle(0, 0, radius);
@@ -58,7 +56,7 @@ public class NewBody extends Entity
     }
 
     // Polygon constructor
-    public NewBody(float x, float y, PhysicsEngine.math.Polygon polygon, PhysicsWorld world) {
+    public Body(float x, float y, physicsEngine.math.Polygon polygon, PhysicsWorld world) {
 
         collisionBox = world.addPolygon(x, y, polygon);
 

@@ -1,7 +1,7 @@
-package PhysicsEngine;
+package physicsEngine;
 
-import PhysicsEngine.math.Formulas;
-import PhysicsEngine.math.Vec2;
+import physicsEngine.math.Formulas;
+import physicsEngine.math.Vec2;
 
 /**
  * Class for calculation collisions between objects
@@ -55,17 +55,9 @@ public abstract class PhysicsObject{
         this.totalForce = new Vec2(0, 0);
         this.totalImpulse = new Vec2(0,0);
         this.numImpulse = 0;
-        this.mass = material.getDensity() * volume;
-        this.inertia = mass * volume;
-        if(material.getDensity() == 0)
-        {
-            invertedMass = 0;
-            invertedIntertia = 0;
-        }
-        else {
-            invertedMass = MASS_SCALING_FACTOR / mass;
-            invertedIntertia = MASS_SCALING_FACTOR / inertia;
-        }
+
+        setMass(volume * material.getDensity());
+        setInertia(mass * volume);
     }
 
     /**
@@ -99,11 +91,11 @@ public abstract class PhysicsObject{
         // Update velocities
         xvelocity += invertedMass * totalForce.x;
         yvelocity += invertedMass * totalForce.y;
-        //angularVelocity += invertedIntertia * torque;
+        angularVelocity += invertedIntertia * torque;
 
         // Zero out total force vector since they have been applied
         totalForce.zero();
-        //torque = 0;
+        torque = 0;
     }
 
     /**
@@ -112,19 +104,12 @@ public abstract class PhysicsObject{
      */
     void applyImpulse(Vec2 impulse, Vec2 contactVec)
     {
-        this.totalImpulse.add(impulse);
-        this.numImpulse = 1;
-        applyTorque(impulse, contactVec);
+        applyForce(impulse.x, impulse.y);
+        applyTorque(Formulas.cross(contactVec, impulse));
         // Only add non-zero impulses
 //        if(impulse.x !=0 || impulse.y != 0) {
 //            this.totalImpulse.add(impulse);
 //            this.numImpulse = ++;
-    }
-
-    void applyTorque(Vec2 impulse, Vec2 contactVector)
-    {
-        angularVelocity += invertedIntertia * Formulas.cross(contactVector, impulse);
-        //torque += Formulas.cross(contactVector, impulse);
     }
 
     /**
@@ -175,6 +160,15 @@ public abstract class PhysicsObject{
         Vec2 force = new Vec2(xcomponent, ycomponent);
         force.mult(worldSettings.getForceScaleFactor()); // scale by force scale factor
         totalForce.add(force);
+    }
+
+    /**
+     * Applies a torque to the object. Positive torque increases clockwise spin
+     * @param torque
+     */
+    public void applyTorque(float torque)
+    {
+        this.torque += torque;
     }
 
     /**
@@ -241,6 +235,30 @@ public abstract class PhysicsObject{
         float x2 = xvelocity*xvelocity;
         float y2 = yvelocity*yvelocity;
         return (float)Math.sqrt(x2 + y2);
+    }
+
+    protected void setMass(float mass)
+    {
+        this.mass = mass;
+        if(material.getDensity() == 0)
+        {
+            invertedMass = 0;
+        }
+        else {
+            invertedMass = MASS_SCALING_FACTOR / mass;
+        }
+    }
+
+    protected void setInertia(float inertia)
+    {
+        this.inertia = inertia;
+        if(material.getDensity() == 0)
+        {
+            invertedIntertia = 0;
+        }
+        else {
+            invertedIntertia = MASS_SCALING_FACTOR / inertia;
+        }
     }
 
     abstract Collision checkCollision(PhysicsCircle circle, float margin);

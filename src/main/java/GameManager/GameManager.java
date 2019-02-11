@@ -1,21 +1,9 @@
 package GameManager;
 
-import Global.DebugGlobal;
-import Global.Settings;
-import PhysicsEngine.Material;
-import PhysicsEngine.PhysicsWorld;
-import PhysicsEngine.math.Point;
-import PhysicsEngine.math.Vec2;
-import entities.*;
-import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class GameManager extends Pane {
-
+    /*
     private Scene scene;
     private List<Entity> objects = new ArrayList<>();
     private int width, height;
@@ -243,5 +231,7 @@ public class GameManager extends Pane {
         objects.add(o);
         this.getChildren().add(o.getVisuals());
     }
+
+    */
 
 }

@@ -1,7 +1,7 @@
-package PhysicsEngine;
+package physicsEngine;
 
-import PhysicsEngine.math.Point;
-import PhysicsEngine.math.Vec2;
+import physicsEngine.math.Point;
+import physicsEngine.math.Vec2;
 
 /**
  * Class for calculating collisions for a circle
@@ -29,6 +29,7 @@ class PhysicsCircle extends PhysicsObject {
     {
         shapeType = ShapeType.CIRCLE;
         this.broadPhaseRadius = r;
+        setInertia((float)(0.25f * Math.PI * r * r * r * r));
     }
     // -----------------------------------------------------------------------------------------------------------------
 

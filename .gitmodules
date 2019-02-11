@@ -1,3 +1,6 @@
-[submodule "src/main/java/GameEngine"]
-	path = src/main/java/GameEngine
+[submodule "src/main/java/gameEngine"]
+	path = src/main/java/gameEngine
 	url = https://github.com/DBall8/GameEngine.git
+[submodule "src/main/java/physicsEngine"]
+	path = src/main/java/physicsEngine
+	url = https://github.com/DBall8/PhysicsEngine.git

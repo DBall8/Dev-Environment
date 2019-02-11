@@ -18,12 +18,12 @@ dependencies {
 jar {
 
     manifest {
-        attributes 'Main-Class': 'DevEnvironment.DevEnvironment'
+        attributes 'Main-Class': 'devEnvironment.DevEnvironment'
     }
     from configurations.runtime.collect { zipTree(it) }
 }
 
 task run(type: JavaExec) {
-    main = 'DevEnvironment.DevEnvironment'
+    main = 'devEnvironment.DevEnvironment'
     classpath = sourceSets.main.runtimeClasspath
 }

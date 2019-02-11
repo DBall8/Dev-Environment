@@ -1,14 +1,12 @@
-package DevEnvironment;
+package devEnvironment;
 
-import GameEngine.GameEngine;
+import gameEngine.GameEngine;
 import Global.Settings;
-import PhysicsEngine.Material;
-import PhysicsEngine.PhysicsWorld;
-import PhysicsEngine.math.MalformedPolygonException;
-import PhysicsEngine.math.Point;
-import PhysicsEngine.math.Polygon;
-import entities.PolygonBody;
-import entities.Wall;
+import physicsEngine.Material;
+import physicsEngine.PhysicsWorld;
+import physicsEngine.math.MalformedPolygonException;
+import physicsEngine.math.Point;
+import physicsEngine.math.Polygon;
 
 public class DevEnvironment extends GameEngine {
 
@@ -20,20 +18,20 @@ public class DevEnvironment extends GameEngine {
         world = new PhysicsWorld();
         settings.setFramesPerSecond(Settings.getFramerate());
 
-        NewBody body = new NewBody(50, 50, 40, 40, Material.Wood, world);
+        Body body = new Body(50, 50, 40, 40, Material.Wood, world);
         addEntity(body);
         body.generateKeyBindings(userInputHandler);
 
-        NewWall wall1 = new NewWall(-30, Settings.getWindowHeight() / 2, 80, Settings.getWindowHeight(), world);
+        Wall wall1 = new Wall(-30, Settings.getWindowHeight() / 2, 80, Settings.getWindowHeight(), world);
         addEntity(wall1);
 
-        NewWall wall2 = new NewWall(Settings.getWindowWidth() + 30, Settings.getWindowHeight() / 2, 80, Settings.getWindowHeight(), world);
+        Wall wall2 = new Wall(Settings.getWindowWidth() + 30, Settings.getWindowHeight() / 2, 80, Settings.getWindowHeight(), world);
         addEntity(wall2);
 
-        NewWall wall3 = new NewWall(Settings.getWindowWidth() / 2, -30, Settings.getWindowWidth() - 20, 80, world);
+        Wall wall3 = new Wall(Settings.getWindowWidth() / 2, -30, Settings.getWindowWidth() - 20, 80, world);
         addEntity(wall3);
 
-        NewWall wall4 = new NewWall(Settings.getWindowWidth() / 2, Settings.getWindowHeight() + 30, Settings.getWindowWidth() - 20, 80, world);
+        Wall wall4 = new Wall(Settings.getWindowWidth() / 2, Settings.getWindowHeight() + 30, Settings.getWindowWidth() - 20, 80, world);
         addEntity(wall4);
 
         try {
@@ -42,7 +40,7 @@ public class DevEnvironment extends GameEngine {
                     new Point(100, 100),
                     new Point(100, 0),
             });
-            NewBody testPoly = new NewBody(600, 600, p, world);
+            Body testPoly = new Body(600, 600, p, world);
             addEntity(testPoly);
         } catch (MalformedPolygonException e) {
             e.printStackTrace();
@@ -55,7 +53,7 @@ public class DevEnvironment extends GameEngine {
                     new Point(100, 100),
                     new Point(100, 0),
             });
-            NewBody testPoly = new NewBody(600, 600, p, world);
+            Body testPoly = new Body(600, 600, p, world);
             addEntity(testPoly);
         } catch (MalformedPolygonException e) {
             e.printStackTrace();
