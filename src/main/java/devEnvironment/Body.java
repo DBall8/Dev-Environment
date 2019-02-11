@@ -1,8 +1,9 @@
 package devEnvironment;
 
+import gameEngine.AbilityCooldown;
 import gameEngine.Entity;
-import gameEngine.KeyBinding;
-import gameEngine.UserInputHandler;
+import gameEngine.userInput.KeyBinding;
+import gameEngine.userInput.UserInputHandler;
 import Global.Settings;
 import physicsEngine.Material;
 import physicsEngine.PhysicsObject;
@@ -11,23 +12,28 @@ import physicsEngine.math.Point;
 import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
+import physicsEngine.math.Vec2;
 
 public class Body extends Entity
 {
     private final static int RADIUS = 20;
     private final static int MAX_AXIS_VELOCITY = 20;
-    private final static float ACCELERATION = 1.0f * (60.0f / Settings.getFramerate());
-    public final static float JUMP_STRENGTH = 20;
+    private final static float ACCELERATION = 1.0f * (60.0f / Settings.FRAMERATE);
+    public final static float JUMP_STRENGTH = 40f;
+    public final static float JUMP_COOLDOWN = 1f;
 
     protected final static float ORIENT_SIZE = 2;
 
+    protected PhysicsWorld world;
     protected PhysicsObject collisionBox;
     private Shape shape;
-    protected KeyBinding up, down, left, right, boost;
+    protected KeyBinding up, down, left, right, jump, boost;
+    protected AbilityCooldown jumpAbility;
 
     // Rectangle constructor
     public Body(float x, float y, float width, float height, Material material, PhysicsWorld world)
     {
+        this.world = world;
         collisionBox = world.addBox(x, y, width, height, material);
         shape = new Rectangle(-width/2, -height/2, width, height);
 
@@ -43,6 +49,7 @@ public class Body extends Entity
     // Circle constructor
     public Body(float x, float y, float radius, Material material, PhysicsWorld world)
     {
+        this.world = world;
         collisionBox = world.addCircle(x, y, radius, material);
         shape = new Circle(0, 0, radius);
 
@@ -56,8 +63,9 @@ public class Body extends Entity
     }
 
     // Polygon constructor
-    public Body(float x, float y, physicsEngine.math.Polygon polygon, PhysicsWorld world) {
-
+    public Body(float x, float y, physicsEngine.math.Polygon polygon, PhysicsWorld world)
+    {
+        this.world = world;
         collisionBox = world.addPolygon(x, y, polygon);
 
         Point[] centeredPoints = polygon.getPoints();
@@ -87,8 +95,8 @@ public class Body extends Entity
 
         if(!isInputSet()) return;
 
-        float yvel = collisionBox.getYvelocity();
-        float xvel = collisionBox.getXvelocity();
+        float yvel = collisionBox.getYVelocity();
+        float xvel = collisionBox.getXVelocity();
 
         float xaccel = 0;
         float yaccel = 0;
@@ -105,6 +113,16 @@ public class Body extends Entity
             xaccel = -ACCELERATION;
         }
 
+        if(jump.isPressed() && !jumpAbility.isOnCooldown())
+        {
+            Vec2 groundedVec;
+            if((groundedVec = world.getGroundedVector(collisionBox)).y < 0)
+            {
+                jumpAbility.use();
+                yaccel += JUMP_STRENGTH * groundedVec.y;
+            }
+        }
+
         if(boost.isPressed())
         {
             xaccel *= 20.0f;
@@ -113,13 +131,22 @@ public class Body extends Entity
         collisionBox.applyForce(xaccel, yaccel);
     }
 
+    public void alphaAdjust(float alpha)
+    {
+        x += collisionBox.getXVelocity() * alpha;
+        y += collisionBox.getYVelocity() * alpha;
+    }
+
     public void generateKeyBindings(UserInputHandler input)
     {
         up = input.createKeyBinding(KeyCode.W);
         down = input.createKeyBinding(KeyCode.S);
         left = input.createKeyBinding(KeyCode.A);
         right = input.createKeyBinding(KeyCode.D);
-        boost = input.createKeyBinding(KeyCode.SPACE);
+        jump = input.createKeyBinding(KeyCode.SPACE);
+        boost = input.createKeyBinding(KeyCode.SHIFT);
+
+        jumpAbility = new AbilityCooldown(JUMP_COOLDOWN);
     }
 
     private boolean isInputSet()
@@ -128,6 +155,7 @@ public class Body extends Entity
                down != null &&
                left != null &&
                right != null &&
+               jump != null &&
                boost != null;
     }
 
@@ -154,5 +182,15 @@ public class Body extends Entity
         {
             shape.setFill(Color.PINK);
         }
+    }
+
+    public void setMaterial(Material material)
+    {
+        collisionBox.setMaterial(material);
+    }
+
+    public void setRotation(float rotation)
+    {
+        collisionBox.setOrientation(rotation);
     }
 }
