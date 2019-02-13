@@ -23,16 +23,23 @@ public class DevEnvironment extends GameEngine {
     Group debugGroup = new Group();
 
     @Override
-    protected void onStart()
+    protected void onInitialize()
     {
+        setWindowWidth(Settings.WINDOW_WIDTH);
+        setWindowHeight(Settings.WINDOW_HEIGHT);
         world = new PhysicsWorld(Settings.GRAVITY);
         world.addDebugView(debugGroup);
-        settings.setFramesPerSecond(Settings.FRAMERATE);
-        mouseBinding = userInputHandler.createMouseClickBinding();
+        setFramesPerSecond(Settings.FRAMERATE);
+    }
+
+    @Override
+    protected void onStart()
+    {
+        mouseBinding = getUserInputHandler().createMouseClickBinding();
 
         Body body = new Body(50, 50, 40, 40, Material.Wood, world);
         addBody(body);
-        body.generateKeyBindings(userInputHandler);
+        body.generateKeyBindings(getUserInputHandler());
 
         Wall wall1 = new Wall(-30, Settings.WINDOW_HEIGHT / 2, 80, Settings.WINDOW_HEIGHT, world);
         addEntity(wall1);
@@ -76,7 +83,7 @@ public class DevEnvironment extends GameEngine {
     @Override
     protected void onUpdateStart()
     {
-        float alpha = world.update(1.0f/ settings.getFramesPerSecond());
+        float alpha = world.update(1.0f/ getFramesPerSecond());
         for(Body b: bodies)
         {
             b.alphaAdjust(alpha);
@@ -104,16 +111,6 @@ public class DevEnvironment extends GameEngine {
                 e.printStackTrace();
             }
         }
-    }
-
-    @Override
-    public int getWindowWidth() {
-        return Settings.WINDOW_WIDTH;
-    }
-
-    @Override
-    public int getWindowHeight() {
-        return Settings.WINDOW_HEIGHT;
     }
 
     private void addBody(Body body)
