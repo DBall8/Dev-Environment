@@ -5,6 +5,7 @@ import gameEngine.GameEngine;
 import Global.Settings;
 import gameEngine.userInput.MouseBinding;
 import javafx.scene.Group;
+import javafx.scene.input.MouseButton;
 import physicsEngine.Material;
 import physicsEngine.PhysicsWorld;
 import physicsEngine.math.MalformedPolygonException;
@@ -35,11 +36,11 @@ public class DevEnvironment extends GameEngine {
     @Override
     protected void onStart()
     {
-        mouseBinding = getUserInputHandler().createMouseClickBinding();
+        mouseBinding = userInputHandler.createMouseClickBinding(MouseButton.PRIMARY);
 
         Body body = new Body(50, 50, 40, 40, Material.Wood, world);
         addBody(body);
-        body.generateKeyBindings(getUserInputHandler());
+        body.generateKeyBindings(userInputHandler);
 
         Wall wall1 = new Wall(-30, Settings.WINDOW_HEIGHT / 2, 80, Settings.WINDOW_HEIGHT, world);
         addEntity(wall1);
