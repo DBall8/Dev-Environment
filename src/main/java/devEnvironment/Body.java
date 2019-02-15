@@ -1,10 +1,13 @@
 package devEnvironment;
 
-import gameEngine.AbilityCooldown;
+import gameEngine.Ability;
 import gameEngine.Entity;
+import gameEngine.callback.Callback;
 import gameEngine.userInput.KeyBinding;
+import gameEngine.userInput.MouseBinding;
 import gameEngine.userInput.UserInputHandler;
 import Global.Settings;
+import javafx.scene.input.MouseButton;
 import physicsEngine.Material;
 import physicsEngine.PhysicsObject;
 import physicsEngine.PhysicsWorld;
@@ -21,6 +24,7 @@ public class Body extends Entity
     private final static float ACCELERATION = 1.0f * (60.0f / Settings.FRAMERATE);
     public final static float JUMP_STRENGTH = 40f;
     public final static float JUMP_COOLDOWN = 1f;
+    private final static float SHOOT_COOLDOWN = 0.05f;
 
     protected final static float ORIENT_SIZE = 2;
 
@@ -28,7 +32,9 @@ public class Body extends Entity
     protected PhysicsObject collisionBox;
     private Shape shape;
     protected KeyBinding up, down, left, right, jump, boost;
-    protected AbilityCooldown jumpAbility;
+    protected MouseBinding shoot;
+    protected Ability jumpAbility;
+    protected Ability shootAbility;
 
     // Rectangle constructor
     public Body(float x, float y, float width, float height, Material material, PhysicsWorld world)
@@ -113,14 +119,14 @@ public class Body extends Entity
             xaccel = -ACCELERATION;
         }
 
-        if(jump.isPressed() && !jumpAbility.isOnCooldown())
+        if(jump.isPressed())
         {
-            Vec2 groundedVec;
-            if((groundedVec = world.getGroundedVector(collisionBox)).y < 0)
-            {
-                jumpAbility.use();
-                yaccel += JUMP_STRENGTH * groundedVec.y;
-            }
+            jumpAbility.use();
+        }
+
+        if(shoot.isPressed())
+        {
+            shootAbility.use();
         }
 
         if(boost.isPressed())
@@ -137,16 +143,36 @@ public class Body extends Entity
         y += collisionBox.getYVelocity() * alpha;
     }
 
-    public void generateKeyBindings(UserInputHandler input)
+    public void generateKeyBindings(UserInputHandler input, DevEnvironment environment)
     {
         up = input.createKeyBinding(KeyCode.W);
         down = input.createKeyBinding(KeyCode.S);
         left = input.createKeyBinding(KeyCode.A);
         right = input.createKeyBinding(KeyCode.D);
         jump = input.createKeyBinding(KeyCode.SPACE);
+        shoot = input.createMouseClickBinding(MouseButton.PRIMARY);
         boost = input.createKeyBinding(KeyCode.SHIFT);
 
-        jumpAbility = new AbilityCooldown(JUMP_COOLDOWN);
+        jumpAbility = new Ability(JUMP_COOLDOWN, new Callback<Void>() {
+            @Override
+            public void run(Void parameter) {
+                Vec2 groundedVec;
+                if((groundedVec = world.getGroundedVector(collisionBox)).y < 0)
+                {
+                    collisionBox.applyForce(0, JUMP_STRENGTH * groundedVec.y);
+                }
+            }
+        });
+
+        shootAbility = new Ability(SHOOT_COOLDOWN, new Callback<Void>() {
+            @Override
+            public void run(Void paramter) {
+                float x = collisionBox.getX() + 40;
+                float y = collisionBox.getY();
+                float angle = collisionBox.getOrientation() + (float)(Math.PI/2);
+                environment.addBody(new Bullet(x, y, angle, environment));
+            }
+        });
     }
 
     private boolean isInputSet()
@@ -176,7 +202,7 @@ public class Body extends Entity
         }
         else if(material.equals(Material.Metal))
         {
-            shape.setFill(Color.LIGHTBLUE);
+            shape.setFill(Color.DARKBLUE);
         }
         else if(material.equals(Material.Bouncy))
         {

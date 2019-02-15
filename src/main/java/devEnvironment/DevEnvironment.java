@@ -3,6 +3,7 @@ package devEnvironment;
 import gameEngine.Entity;
 import gameEngine.GameEngine;
 import Global.Settings;
+import gameEngine.callback.Callback;
 import gameEngine.userInput.MouseBinding;
 import javafx.scene.Group;
 import javafx.scene.input.MouseButton;
@@ -20,6 +21,7 @@ public class DevEnvironment extends GameEngine {
     PhysicsWorld world;
     MouseBinding mouseBinding;
     List<Body> bodies = new ArrayList<>();
+    Body player;
 
     Group debugGroup = new Group();
 
@@ -30,6 +32,7 @@ public class DevEnvironment extends GameEngine {
         setWindowHeight(Settings.WINDOW_HEIGHT);
         world = new PhysicsWorld(Settings.GRAVITY);
         world.addDebugView(debugGroup);
+        world.setUpdatesPerFrame(30);
         setFramesPerSecond(Settings.FRAMERATE);
     }
 
@@ -40,7 +43,8 @@ public class DevEnvironment extends GameEngine {
 
         Body body = new Body(50, 50, 40, 40, Material.Wood, world);
         addBody(body);
-        body.generateKeyBindings(userInputHandler);
+        body.generateKeyBindings(userInputHandler, this);
+        player = body;
 
         Wall wall1 = new Wall(-30, Settings.WINDOW_HEIGHT / 2, 80, Settings.WINDOW_HEIGHT, world);
         addEntity(wall1);
@@ -61,7 +65,7 @@ public class DevEnvironment extends GameEngine {
                     new Point(100, 0),
             });
             Body testPoly = new Body(600, 600, p, world);
-            addEntity(testPoly);
+            addBody(testPoly);
         } catch (MalformedPolygonException e) {
             e.printStackTrace();
         }
@@ -74,7 +78,7 @@ public class DevEnvironment extends GameEngine {
                     new Point(100, 0),
             });
             Body testPoly = new Body(600, 600, p, world);
-            addEntity(testPoly);
+            addBody(testPoly);
         } catch (MalformedPolygonException e) {
             e.printStackTrace();
         }
@@ -85,6 +89,11 @@ public class DevEnvironment extends GameEngine {
     protected void onUpdateStart()
     {
         float alpha = world.update(1.0f/ getFramesPerSecond());
+        alphaAdjust(alpha);
+    }
+
+    synchronized private void alphaAdjust(float alpha)
+    {
         for(Body b: bodies)
         {
             b.alphaAdjust(alpha);
@@ -94,10 +103,13 @@ public class DevEnvironment extends GameEngine {
     @Override
     protected void onUpdateFinish()
     {
-        float size = (float)Math.random()*75 + 25;
+
         if(mouseBinding.isClicked()) {
             mouseBinding.consumeClick();
+
+            /* Spawn triangle
             try {
+                float size = (float)Math.random()*75 + 25;
                 Polygon p = new Polygon(new Point[]{
                         new Point(0, 0),
                         new Point(size, size),
@@ -111,12 +123,20 @@ public class DevEnvironment extends GameEngine {
             } catch (MalformedPolygonException e) {
                 e.printStackTrace();
             }
+            */
         }
     }
 
-    private void addBody(Body body)
+    synchronized void addBody(Body body)
     {
         addEntity(body);
         bodies.add(body);
+    }
+
+    synchronized void removeBody(Body body)
+    {
+        removeEntity(body);
+       bodies.remove(body);
+       world.removeObject(body.collisionBox);
     }
 }
