@@ -1,9 +1,7 @@
 package devEnvironment;
 
-import gameEngine.Entity;
 import gameEngine.GameEngine;
 import Global.Settings;
-import gameEngine.callback.Callback;
 import gameEngine.userInput.MouseBinding;
 import javafx.scene.Group;
 import javafx.scene.input.MouseButton;
@@ -32,7 +30,7 @@ public class DevEnvironment extends GameEngine {
         setWindowHeight(Settings.WINDOW_HEIGHT);
         world = new PhysicsWorld(Settings.GRAVITY);
         world.addDebugView(debugGroup);
-        world.setUpdatesPerFrame(30);
+//        world.setUpdatesPerSecond(60);
         setFramesPerSecond(Settings.FRAMERATE);
     }
 
@@ -55,8 +53,11 @@ public class DevEnvironment extends GameEngine {
         Wall wall3 = new Wall(Settings.WINDOW_WIDTH / 2, -30, Settings.WINDOW_WIDTH - 20, 80, world);
         addEntity(wall3);
 
-        Wall wall4 = new Wall(Settings.WINDOW_WIDTH / 2, Settings.WINDOW_HEIGHT + 30, Settings.WINDOW_WIDTH - 20, 80, world);
+        Wall wall4 = new Wall(Settings.WINDOW_WIDTH / 4, Settings.WINDOW_HEIGHT + 30, Settings.WINDOW_WIDTH/2 - 20, 80, world);
         addEntity(wall4);
+
+        Wall wall5 = new Wall(3 * Settings.WINDOW_WIDTH / 4, Settings.WINDOW_HEIGHT + 30, Settings.WINDOW_WIDTH/2 - 20, 80, world);
+        addEntity(wall5);
 
         try {
             Polygon p = new Polygon(new Point[]{
