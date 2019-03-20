@@ -4,3 +4,6 @@
 [submodule "src/main/java/physicsEngine"]
 	path = src/main/java/physicsEngine
 	url = https://github.com/DBall8/PhysicsEngine.git
+[submodule "src/main/java/networkManager"]
+	path = src/main/java/networkManager
+	url = https://github.com/DBall8/NetworkManager.git

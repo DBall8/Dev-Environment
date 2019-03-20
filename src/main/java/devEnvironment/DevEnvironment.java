@@ -5,6 +5,8 @@ import Global.Settings;
 import gameEngine.userInput.MouseBinding;
 import javafx.scene.Group;
 import javafx.scene.input.MouseButton;
+import networkManager.Connection;
+import networkManager.protocols.BasicClientProtocol;
 import physicsEngine.Material;
 import physicsEngine.PhysicsWorld;
 import physicsEngine.math.MalformedPolygonException;
@@ -23,6 +25,8 @@ public class DevEnvironment extends GameEngine {
 
     Group debugGroup = new Group();
 
+    Connection connection;
+
     @Override
     protected void onInitialize()
     {
@@ -36,6 +40,10 @@ public class DevEnvironment extends GameEngine {
         setFramesPerSecond(Settings.FRAMERATE);
 
         Bullet.setPlayerList(players);
+
+        BasicClientProtocol protocol = new BasicClientProtocol(252);
+        connection = new Connection("127.0.0.1", 8080, protocol);
+        connection.connect();
     }
 
     @Override
@@ -114,6 +122,20 @@ public class DevEnvironment extends GameEngine {
     {
         float alpha = world.update(1.0f/ getFramesPerSecond());
         alphaAdjust(alpha);
+
+        byte[] message = new byte[]
+        {
+                (byte)players.get(0).collisionBox.getX(),
+                (byte)players.get(0).collisionBox.getY(),
+                (byte)0xff
+        };
+        connection.sendMessage(message);
+    }
+
+    @Override
+    protected void onClose()
+    {
+        connection.close();
     }
 
     synchronized void addBody(Body body)
