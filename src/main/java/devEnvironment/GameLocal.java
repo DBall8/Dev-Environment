@@ -2,6 +2,7 @@ package devEnvironment;
 
 import gameEngine.GameEngine;
 import Global.Settings;
+import gameEngine.callback.Callback;
 import gameEngine.userInput.MouseBinding;
 import javafx.scene.Group;
 import javafx.scene.input.MouseButton;
@@ -16,7 +17,7 @@ import physicsEngine.math.Polygon;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DevEnvironment extends GameEngine {
+public class GameLocal extends GameEngine {
 
     PhysicsWorld world;
     MouseBinding mouseBinding;
@@ -25,7 +26,7 @@ public class DevEnvironment extends GameEngine {
 
     Group debugGroup = new Group();
 
-    Connection connection;
+    Environment environment;
 
     @Override
     protected void onInitialize()
@@ -41,9 +42,17 @@ public class DevEnvironment extends GameEngine {
 
         Bullet.setPlayerList(players);
 
-        BasicClientProtocol protocol = new BasicClientProtocol(252);
-        connection = new Connection("127.0.0.1", 8080, protocol);
-        connection.connect();
+        environment = new Environment(world, new physicsEngine.callback.Callback<Body>() {
+            @Override
+            public void run(Body paramter) {
+                addBody(paramter);
+            }
+        }, new physicsEngine.callback.Callback<Body>() {
+            @Override
+            public void run(Body paramter) {
+                removeBody(paramter);
+            }
+        });
     }
 
     @Override
@@ -54,12 +63,12 @@ public class DevEnvironment extends GameEngine {
         Player player1 = new Player(50, 50, 40, 40, Material.Wood, world);
         addBody(player1);
         players.add(player1);
-        player1.generateKeyBindings(userInputHandler, this, (short)1);
+        player1.generateKeyBindings(userInputHandler, environment, (short)1);
 
         Player player2 = new Player(500, 500, 40, 40, Material.Wood, world);
         addBody(player2);
         players.add(player2);
-        player2.generateKeyBindings(userInputHandler, this, (short)2);
+        player2.generateKeyBindings(userInputHandler, environment, (short)2);
 
         Wall wall1 = new Wall(-30, Settings.WINDOW_HEIGHT / 2, 80, Settings.WINDOW_HEIGHT, world);
         addEntity(wall1);
@@ -122,20 +131,12 @@ public class DevEnvironment extends GameEngine {
     {
         float alpha = world.update(1.0f/ getFramesPerSecond());
         alphaAdjust(alpha);
-
-        byte[] message = new byte[]
-        {
-                (byte)players.get(0).collisionBox.getX(),
-                (byte)players.get(0).collisionBox.getY(),
-                (byte)0xff
-        };
-        connection.sendMessage(message);
     }
 
     @Override
     protected void onClose()
     {
-        connection.close();
+
     }
 
     synchronized void addBody(Body body)

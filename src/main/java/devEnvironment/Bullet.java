@@ -18,9 +18,9 @@ public class Bullet extends Body {
 
     private Player owner;
 
-    public Bullet(Player p, DevEnvironment environment)
+    public Bullet(Player p, Environment environment)
     {
-        super(p.collisionBox.getX(), p.collisionBox.getY(), WIDTH, HEIGHT, Material.Metal, environment.world);
+        super(p.collisionBox.getX(), p.collisionBox.getY(), WIDTH, HEIGHT, Material.Metal, environment.getWorld());
         owner = p;
         collisionBox.ignore(p.collisionBox);
         p.collisionBox.ignore(collisionBox);

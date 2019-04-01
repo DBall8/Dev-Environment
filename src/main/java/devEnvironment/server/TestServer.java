@@ -1,4 +1,4 @@
-package devEnvironment;
+package devEnvironment.server;
 
 import networkManager.Connection;
 import networkManager.Server;

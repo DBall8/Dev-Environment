@@ -202,7 +202,7 @@ public class Player extends Body {
 
     }
 
-    public void generateKeyBindings(UserInputHandler input, DevEnvironment environment, short playerNum)
+    public void generateKeyBindings(UserInputHandler input, Environment environment, short playerNum)
     {
         switch (playerNum)
         {
@@ -245,6 +245,9 @@ public class Player extends Body {
             }
         });
     }
+
+    public void initializeAbilities()
+    {}
 
     private boolean isInputSet()
     {

@@ -24,17 +24,17 @@ jar {
 }
 
 task run(type: JavaExec) {
-    main = 'devEnvironment.DevEnvironment'
+    main = 'devEnvironment.GameLocal'
     classpath = sourceSets.main.runtimeClasspath
 }
 
 task(runServer, dependsOn: 'classes', type: JavaExec) {
-    main = 'devEnvironment.TestServer'
+    main = 'devEnvironment.server.TestServer'
     classpath = sourceSets.main.runtimeClasspath
 }
 
 task(runClient, dependsOn: 'classes', type: JavaExec) {
-    main = 'devEnvironment.TestClient'
+    main = 'devEnvironment.client.TestClient'
     classpath = sourceSets.main.runtimeClasspath
 }
 

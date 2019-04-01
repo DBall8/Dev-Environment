@@ -1,4 +1,4 @@
-package devEnvironment;
+package devEnvironment.client;
 
 import networkManager.Connection;
 import networkManager.protocols.BasicClientProtocol;
