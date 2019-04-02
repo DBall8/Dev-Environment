@@ -1,13 +1,11 @@
-package devEnvironment;
+package devEnvironment.local;
 
+import devEnvironment.*;
 import gameEngine.GameEngine;
 import Global.Settings;
-import gameEngine.callback.Callback;
 import gameEngine.userInput.MouseBinding;
 import javafx.scene.Group;
 import javafx.scene.input.MouseButton;
-import networkManager.Connection;
-import networkManager.protocols.BasicClientProtocol;
 import physicsEngine.Material;
 import physicsEngine.PhysicsWorld;
 import physicsEngine.math.MalformedPolygonException;
@@ -149,6 +147,6 @@ public class GameLocal extends GameEngine {
     {
         removeEntity(body);
         bodies.remove(body);
-        world.removeObject(body.collisionBox);
+        world.removeObject(body.getCollisionBox());
     }
 }

@@ -152,4 +152,6 @@ public class Body extends Entity
     {
         collisionBox.setOrientation(rotation);
     }
+
+    public PhysicsObject getCollisionBox(){ return collisionBox; }
 }

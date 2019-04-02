@@ -21,20 +21,20 @@ import java.util.TimerTask;
 
 public class Player extends Body {
 
-    private final static int RADIUS = 20;
-    private final static float MAX_FORWARD_VELOCITY = 10 * (60.0f / Settings.FRAMERATE);
-    private final static float MAX_SIDE_VELOCITY = 20 * (60.0f / Settings.FRAMERATE);
-    private final static float MAX_BACK_VELOCITY = 20 * (60.0f / Settings.FRAMERATE);
-    private final static float MAX_ROTATIONAL_VELOCITY = (float)(Math.PI / 45) * (60.0f / Settings.FRAMERATE);
-    private final static float FORWARD_ACCELERATION = 2.0f * (60.0f / Settings.FRAMERATE);
-    private final static float SIDE_ACCELERATION = 0.5f * (60.0f / Settings.FRAMERATE);
-    private final static float BACK_ACCELERATION = 0.25f * (60.0f / Settings.FRAMERATE);
-    private final static float DEACCELERATION = 0.4f * (60.0f / Settings.FRAMERATE);
-    private final static float RACCEL = 40.0f * (60.0f / Settings.FRAMERATE);
+    protected final static int RADIUS = 20;
+    protected final static float MAX_FORWARD_VELOCITY = 10 * (60.0f / Settings.FRAMERATE);
+    protected final static float MAX_SIDE_VELOCITY = 20 * (60.0f / Settings.FRAMERATE);
+    protected final static float MAX_BACK_VELOCITY = 20 * (60.0f / Settings.FRAMERATE);
+    protected final static float MAX_ROTATIONAL_VELOCITY = (float)(Math.PI / 45) * (60.0f / Settings.FRAMERATE);
+    protected final static float FORWARD_ACCELERATION = 2.0f * (60.0f / Settings.FRAMERATE);
+    protected final static float SIDE_ACCELERATION = 0.5f * (60.0f / Settings.FRAMERATE);
+    protected final static float BACK_ACCELERATION = 0.25f * (60.0f / Settings.FRAMERATE);
+    protected final static float DEACCELERATION = 0.4f * (60.0f / Settings.FRAMERATE);
+    protected final static float RACCEL = 40.0f * (60.0f / Settings.FRAMERATE);
     public final static float JUMP_STRENGTH = 40f;
     public final static float JUMP_COOLDOWN = 1f;
-    private final static float SHOOT_COOLDOWN = 0.05f;
-    private final static float DAMAGE_SHOW_DURATION = 2;
+    protected final static float SHOOT_COOLDOWN = 0.05f;
+    protected final static float DAMAGE_SHOW_DURATION = 2;
 
     protected KeyBinding up, down, left, right, jump, boost;
     protected MouseBinding mouse;
