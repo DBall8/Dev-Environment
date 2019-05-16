@@ -3,6 +3,7 @@ package devEnvironment.test1.server;
 import Global.Settings;
 import devEnvironment.*;
 import devEnvironment.test1.ClientMessage;
+import devEnvironment.test1.ClientMessageProtocol;
 import gameEngine.GameEngine;
 import gameEngine.userInput.MouseBinding;
 import javafx.scene.Group;
@@ -30,7 +31,7 @@ public class Main extends GameEngine
 
     Environment environment;
 
-    ServerProtocol protocol;
+    ClientMessageProtocol clientMessageProtocol;
     Server server;
 
     @Override
@@ -59,14 +60,14 @@ public class Main extends GameEngine
             }
         });
 
-        protocol = new ServerProtocol();
-        server = new Server(8080, 10, protocol);
+        server = new Server(8080, 10);
+        clientMessageProtocol = new ClientMessageProtocol(server, 30);
     }
 
     @Override
     protected void onStart()
     {
-        mouseBinding = userInputHandler.createMouseClickBinding(MouseButton.PRIMARY);
+        mouseBinding = getUserInputHandler().createMouseClickBinding(MouseButton.PRIMARY);
 
         Wall wall1 = new Wall(-30, Settings.WINDOW_HEIGHT / 2, 80, Settings.WINDOW_HEIGHT, world);
         addEntity(wall1);
@@ -114,7 +115,7 @@ public class Main extends GameEngine
     @Override
     protected void onUpdateStart()
     {
-        handleClientMessages(protocol.getMessages());
+        handleClientMessages(clientMessageProtocol.getReceivedMessages());
     }
 
     synchronized private void alphaAdjust(float alpha)
@@ -151,20 +152,20 @@ public class Main extends GameEngine
         world.removeObject(body.getCollisionBox());
     }
 
-    private void handleClientMessages(List<ServerProtocol.MessageList> messageLists)
+    private void handleClientMessages(List<ClientMessage> messages)
     {
-        for(ServerProtocol.MessageList messageList: messageLists)
+        for(ClientMessage message: messages)
         {
-            if(!playerMap.containsKey(messageList.ip))
+            if(!playerMap.containsKey(message.getSenderIp()))
             {
-                RemoteControlledPlayer newPlayer = new RemoteControlledPlayer(messageList.ip, 50, 50, 40, 40, Material.Wood, world);
-                newPlayer.generateKeyBindings(userInputHandler, environment, (short)0);
-                playerMap.put(messageList.ip, newPlayer);
+                RemoteControlledPlayer newPlayer = new RemoteControlledPlayer(message.getSenderIp(), 50, 50, 40, 40, Material.Wood, world);
+                newPlayer.generateKeyBindings(getUserInputHandler(), environment, (short)0);
+                playerMap.put(message.getSenderIp(), newPlayer);
                 addBody(newPlayer);
                 players.add(newPlayer);
             }
 
-            playerMap.get(messageList.ip).setLatestMessages(messageList.messages);
+            playerMap.get(message.getSenderIp()).applyMessage(message);
         }
     }
 }

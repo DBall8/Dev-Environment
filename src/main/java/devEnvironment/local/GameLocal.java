@@ -1,12 +1,19 @@
 package devEnvironment.local;
 
 import devEnvironment.*;
+import gameEngine.Entity;
 import gameEngine.GameEngine;
 import Global.Settings;
+import gameEngine.userInput.KeyBinding;
 import gameEngine.userInput.MouseBinding;
 import javafx.scene.Group;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
 import physicsEngine.Material;
+import physicsEngine.PhysicsObject;
 import physicsEngine.PhysicsWorld;
 import physicsEngine.math.MalformedPolygonException;
 import physicsEngine.math.Point;
@@ -14,8 +21,12 @@ import physicsEngine.math.Polygon;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class GameLocal extends GameEngine {
+
+    public static final boolean DEBUG = false;
+    public static final int MIN_EDGE_DIST = 100;
 
     PhysicsWorld world;
     MouseBinding mouseBinding;
@@ -25,6 +36,7 @@ public class GameLocal extends GameEngine {
     Group debugGroup = new Group();
 
     Environment environment;
+    Map map;
 
     @Override
     protected void onInitialize()
@@ -37,6 +49,8 @@ public class GameLocal extends GameEngine {
         world.setUpdatesPerSecond(120);
         world.setCollisionPrecision(10);
         setFramesPerSecond(Settings.FRAMERATE);
+        world.setAirResistanceScale(Settings.AIR_RESISTANCE_FACTOR);
+        world.setFocusDistance((int)(Settings.WINDOW_WIDTH * 1.2));
 
         Bullet.setPlayerList(players);
 
@@ -56,32 +70,18 @@ public class GameLocal extends GameEngine {
     @Override
     protected void onStart()
     {
-        mouseBinding = userInputHandler.createMouseClickBinding(MouseButton.PRIMARY);
-
-        Player player1 = new Player(50, 50, 40, 40, Material.Wood, world);
+        Player player1 = new Player(50, 100, 40,/* 40,*/ Material.Wood, world);
         addBody(player1);
         players.add(player1);
-        player1.generateKeyBindings(userInputHandler, environment, (short)1);
+        player1.generateKeyBindings(getUserInputHandler(), environment, (short)1);
 
-        Player player2 = new Player(500, 500, 40, 40, Material.Wood, world);
+        Player player2 = new Player(500, 500, 40, 40, Material.Metal, world);
         addBody(player2);
         players.add(player2);
-        player2.generateKeyBindings(userInputHandler, environment, (short)2);
+        player2.generateKeyBindings(getUserInputHandler(), environment, (short)2);
 
-        Wall wall1 = new Wall(-30, Settings.WINDOW_HEIGHT / 2, 80, Settings.WINDOW_HEIGHT, world);
-        addEntity(wall1);
-
-        Wall wall2 = new Wall(Settings.WINDOW_WIDTH + 30, Settings.WINDOW_HEIGHT / 2, 80, Settings.WINDOW_HEIGHT, world);
-        addEntity(wall2);
-
-        Wall wall3 = new Wall(Settings.WINDOW_WIDTH / 2, -30, Settings.WINDOW_WIDTH - 20, 80, world);
-        addEntity(wall3);
-
-        Wall wall4 = new Wall(Settings.WINDOW_WIDTH / 4, Settings.WINDOW_HEIGHT + 30, Settings.WINDOW_WIDTH/2 - 20, 80, world);
-        addEntity(wall4);
-
-        Wall wall5 = new Wall(3 * Settings.WINDOW_WIDTH / 4, Settings.WINDOW_HEIGHT + 30, Settings.WINDOW_WIDTH/2 - 20, 80, world);
-        addEntity(wall5);
+        map = new Map(environment);
+        map.initialize();
 
         try {
             Polygon p = new Polygon(new Point[]{
@@ -108,12 +108,45 @@ public class GameLocal extends GameEngine {
             e.printStackTrace();
         }
 
+        if(DEBUG) {
+            mouseBinding = getUserInputHandler().createMouseListener(MouseButton.PRIMARY);
+            addEntity(new MouseDebug());
+        }
+
     }
 
     @Override
     protected void onUpdateStart()
     {
+        int cameraX = getCamera().getCameraX();
+        int cameraY = getCamera().getCameraY();
+        Player p1 = players.get(0);
+        if (Settings.WINDOW_WIDTH - p1.getScreenX() < MIN_EDGE_DIST)
+        {
+//            System.out.format("CAM: %d, P: %d Diff: %d\n", (int)cameraX, (int)p1.getScreenX(),(int)(Settings.WINDOW_WIDTH - p1.getScreenX()));
+            cameraX = (int)(p1.getWorldX() - Settings.WINDOW_WIDTH /2 + MIN_EDGE_DIST);
+        }
+        else if (p1.getScreenX() < MIN_EDGE_DIST)
+        {
+            cameraX = (int)(p1.getWorldX() + Settings.WINDOW_WIDTH /2 - MIN_EDGE_DIST);
+        }
 
+        if(Settings.FROM_ABOVE)
+        {
+            if (Settings.WINDOW_HEIGHT - p1.getScreenY() < MIN_EDGE_DIST)
+            {
+                cameraY = (int)(p1.getWorldY() - Settings.WINDOW_HEIGHT /2 + MIN_EDGE_DIST);
+            }
+            else if (p1.getScreenY() < MIN_EDGE_DIST)
+            {
+                cameraY = (int)(p1.getWorldY() + Settings.WINDOW_HEIGHT /2 - MIN_EDGE_DIST);
+            }
+        }
+        getCamera().setCameraPosition(cameraX, cameraY);
+
+        world.setFocusPoint(cameraX, cameraY);
+        float alpha = world.update(1.0f/ getFramesPerSecond());
+        alphaAdjust(alpha);
     }
 
     synchronized private void alphaAdjust(float alpha)
@@ -127,8 +160,7 @@ public class GameLocal extends GameEngine {
     @Override
     protected void onUpdateFinish()
     {
-        float alpha = world.update(1.0f/ getFramesPerSecond());
-        alphaAdjust(alpha);
+
     }
 
     @Override
@@ -148,5 +180,30 @@ public class GameLocal extends GameEngine {
         removeEntity(body);
         bodies.remove(body);
         world.removeObject(body.getCollisionBox());
+    }
+
+    class MouseDebug extends Entity
+    {
+        Circle circle;
+        Line line;
+
+        MouseDebug()
+        {
+            circle = new Circle(10, Color.RED);
+            addVisual(circle);
+            line = new Line(0,0,0,0);
+            line.setStrokeWidth(2);
+            line.setStroke(Color.RED);
+            addVisual(line);
+        }
+
+        @Override
+        public void update()
+        {
+            setLocation(mouseBinding.getMouseX(), mouseBinding.getMouseY());
+            PhysicsObject p1Box = players.get(0).getCollisionBox();
+            line.setEndX(p1Box.getX() - mouseBinding.getMouseX());
+            line.setEndY(p1Box.getY() - mouseBinding.getMouseY());
+        }
     }
 }

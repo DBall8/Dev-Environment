@@ -63,11 +63,6 @@ public class Player extends Body {
 
         if(!isInputSet()) return;
 
-        if(mouse.isPressed())
-        {
-            shootAbility.use();
-        }
-
         if(Settings.FROM_ABOVE)
         {
             float angle = Formulas.getAngle(new Point(collisionBox.getX(), collisionBox.getY()), new Point(mouse.getMouseX(), mouse.getMouseY()));
@@ -102,23 +97,23 @@ public class Player extends Body {
             }
 
             // Slow down
-            if(xvel > 0)
-            {
-                xAccel -= DEACCELERATION;
-            }
-            else if(xvel < 0)
-            {
-                xAccel += DEACCELERATION;
-            }
-
-            if(yvel > 0)
-            {
-                yAccel -= DEACCELERATION;
-            }
-            else if(yvel < 0)
-            {
-                yAccel += DEACCELERATION;
-            }
+//            if(xvel > 0)
+//            {
+//                xAccel -= DEACCELERATION;
+//            }
+//            else if(xvel < 0)
+//            {
+//                xAccel += DEACCELERATION;
+//            }
+//
+//            if(yvel > 0)
+//            {
+//                yAccel -= DEACCELERATION;
+//            }
+//            else if(yvel < 0)
+//            {
+//                yAccel += DEACCELERATION;
+//            }
             collisionBox.applyForce(xAccel, yAccel);
 
             /*
@@ -195,10 +190,13 @@ public class Player extends Body {
             {
                 xaccel *= 20.0f;
             }
-
             collisionBox.applyForce(xaccel, yaccel);
         }
 
+        if(mouse.isPressed())
+        {
+            shootAbility.use();
+        }
 
     }
 

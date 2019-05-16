@@ -41,20 +41,9 @@ public class RemoteControlledPlayer extends Player
         this.ip = ip;
     }
 
-    public void setLatestMessages(List<ClientMessage> latestMessages)
+    public void applyMessage(ClientMessage message)
     {
-        this.latestMessages = latestMessages;
-
-    }
-
-    @Override
-    public void update() {
-        super.update();
-        for(ClientMessage message: latestMessages)
-        {
-            playerUpdate(message);
-        }
-        latestMessages.clear();
+        playerUpdate(message);
     }
 
     public void playerUpdate(ClientMessage message)

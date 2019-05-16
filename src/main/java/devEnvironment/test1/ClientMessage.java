@@ -16,6 +16,8 @@ public class ClientMessage {
     private short mouseX = 0;
     private short mouseY = 0;
 
+    private String senderIp = null;
+
     public ClientMessage(byte inputs, short mouseX, short mouseY)
     {
         this.inputs = inputs;
@@ -51,4 +53,6 @@ public class ClientMessage {
     public short getMouseX(){ return mouseX; }
     public short getMouseY(){ return mouseY; }
 
+    public void setSenderIp(String ip){ this.senderIp = ip; }
+    public String getSenderIp(){ return senderIp; }
 }
