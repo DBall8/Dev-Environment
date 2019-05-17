@@ -70,12 +70,26 @@ public class GameLocal extends GameEngine {
     @Override
     protected void onStart()
     {
-        Player player1 = new Player(50, 100, 40,/* 40,*/ Material.Wood, world);
-        addBody(player1);
-        players.add(player1);
-        player1.generateKeyBindings(getUserInputHandler(), environment, (short)1);
+        try {
+            Polygon p = new Polygon(new Point[]{
+                    new Point(-20, -20),
+                    new Point(100, 0),
+                    new Point(-20, 20)
+            });
 
-        Player player2 = new Player(500, 500, 40, 40, Material.Metal, world);
+//            Player player1 = new Player(50, 100, p, Material.Wood, world);
+
+        Player player1 = new Player(50, 100, 40, /*80,*/ Material.Wood, world);
+            addBody(player1);
+            players.add(player1);
+            player1.generateKeyBindings(getUserInputHandler(), environment, (short)1);
+            player1.getCollisionBox().setDebug();
+        } catch (Exception e){}
+
+
+
+        Player player2 = new Player(500, 500, 40, 40, Material.Wood, world);
+        player2.setRotation((int)Math.PI/2);
         addBody(player2);
         players.add(player2);
         player2.generateKeyBindings(getUserInputHandler(), environment, (short)2);

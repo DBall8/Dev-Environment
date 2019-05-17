@@ -37,7 +37,7 @@ public class RemoteControlledPlayer extends Player
     }
 
     public RemoteControlledPlayer(String ip, float x, float y, Polygon polygon, PhysicsWorld world) {
-        super(x, y, polygon, world);
+        super(x, y, polygon, Material.Wood, world);
         this.ip = ip;
     }
 

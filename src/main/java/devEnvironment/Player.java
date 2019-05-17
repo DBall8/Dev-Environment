@@ -35,8 +35,9 @@ public class Player extends Body {
     public final static float JUMP_COOLDOWN = 1f;
     protected final static float SHOOT_COOLDOWN = 0.05f;
     protected final static float DAMAGE_SHOW_DURATION = 2;
+    private final static int DEFAULT_MASS = 480;
 
-    protected KeyBinding up, down, left, right, jump, boost;
+    protected KeyBinding up, down, left, right, jump, boost, rLeft, rRight;
     protected MouseBinding mouse;
     protected Ability jumpAbility;
     protected Ability shootAbility;
@@ -44,16 +45,26 @@ public class Player extends Body {
     Timer damageTimer = new Timer(true);
     TimerTask damageTask = null;
 
+    private float massScalar = 1;
+
     public Player(float x, float y, float width, float height, Material material, PhysicsWorld world) {
         super(x, y, width, height, material, world);
+        commonInit();
     }
 
     public Player(float x, float y, float radius, Material material, PhysicsWorld world) {
         super(x, y, radius, material, world);
+        commonInit();
     }
 
-    public Player(float x, float y, Polygon polygon, PhysicsWorld world) {
-        super(x, y, polygon, world);
+    public Player(float x, float y, Polygon polygon, Material material, PhysicsWorld world) {
+        super(x, y, polygon, material, world);
+        commonInit();
+    }
+
+    private void commonInit()
+    {
+        massScalar = collisionBox.getMass() / DEFAULT_MASS;
     }
 
     @Override
@@ -165,9 +176,11 @@ public class Player extends Body {
         {
             float yvel = collisionBox.getYVelocity();
             float xvel = collisionBox.getXVelocity();
+            float rvel = collisionBox.getAngularVelocity();
 
             float xaccel = 0;
             float yaccel = 0;
+            float raccel = 0;
 
             if (down.isPressed() && !up.isPressed() && yvel < MAX_FORWARD_VELOCITY) {
                 yaccel = FORWARD_ACCELERATION;
@@ -181,6 +194,12 @@ public class Player extends Body {
                 xaccel = -FORWARD_ACCELERATION;
             }
 
+            if (rRight.isPressed() && !rLeft.isPressed() && rvel < MAX_ROTATIONAL_VELOCITY) {
+                raccel = RACCEL;
+            } else if (!rRight.isPressed() && rLeft.isPressed() && rvel > -MAX_ROTATIONAL_VELOCITY) {
+                raccel = -RACCEL;
+            }
+
             if(jump.isPressed())
             {
                 jumpAbility.use();
@@ -189,8 +208,11 @@ public class Player extends Body {
             if(boost.isPressed())
             {
                 xaccel *= 20.0f;
+                raccel *= 20.0f;
             }
-            collisionBox.applyForce(xaccel, yaccel);
+
+            collisionBox.applyForce(xaccel * massScalar, yaccel * massScalar);
+            collisionBox.applyTorque(raccel * massScalar);
         }
 
         if(mouse.isPressed())
@@ -210,6 +232,8 @@ public class Player extends Body {
                 down = input.createKeyBinding(KeyCode.S);
                 left = input.createKeyBinding(KeyCode.A);
                 right = input.createKeyBinding(KeyCode.D);
+                rLeft = input.createKeyBinding(KeyCode.Q);
+                rRight = input.createKeyBinding(KeyCode.E);
                 jump = input.createKeyBinding(KeyCode.SPACE);
                 mouse = input.createMouseListener(MouseButton.PRIMARY);
                 boost = input.createKeyBinding(KeyCode.SHIFT);
@@ -219,6 +243,8 @@ public class Player extends Body {
                 down = input.createKeyBinding(KeyCode.DOWN);
                 left = input.createKeyBinding(KeyCode.LEFT);
                 right = input.createKeyBinding(KeyCode.RIGHT);
+                rLeft = input.createKeyBinding(KeyCode.PAGE_UP);
+                rRight = input.createKeyBinding(KeyCode.PAGE_DOWN);
                 jump = input.createKeyBinding(KeyCode.ENTER);
                 mouse = input.createMouseListener(MouseButton.SECONDARY);
                 boost = input.createKeyBinding(KeyCode.SLASH);
@@ -231,7 +257,7 @@ public class Player extends Body {
                 Vec2 groundedVec;
                 if((groundedVec = world.getGroundedVector(collisionBox)).y < 0)
                 {
-                    collisionBox.applyForce(0, JUMP_STRENGTH * groundedVec.y);
+                    collisionBox.applyForce(0, JUMP_STRENGTH * groundedVec.y * massScalar);
                 }
             }
         });
